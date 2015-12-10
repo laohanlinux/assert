@@ -3,10 +3,10 @@ package assert
 // Testing helpers for doozer.
 
 import (
-	"fmt"
 	"github.com/kr/pretty"
 	"reflect"
 	"runtime"
+	"fmt"
 	"testing"
 )
 
@@ -50,19 +50,23 @@ func Tf(t *testing.T, result bool, format string, args ...interface{}) {
 	tt(t, result, 1, fmt.Sprintf(format, args...))
 }
 
-func Nil(t *testing.T, got interface{}, args ...interface{}) {
-	if got == nil {
-		Equal(t, nil, nil, args...)
-	} else {
-		Equal(t, nil, got, args...)
+func Nil(t *testing.T, got interface{}) {
+	fn := func() {
+		t.Error(got, "!=", nil)
+	}
+	
+	if !isNil(got) {
+		assert(t, false, fn, 1)
 	}
 }
 
-func NotNil(t *testing.T, got interface{}, args ...interface{}) {
-	if got != nil {
-		NotEqual(t, nil, got, args...)
-	} else {
-		NotEqual(t, nil, nil, args...)
+func NotNil(t *testing.T, got interface{}) {
+	fn := func() {
+		t.Error(got, "!=", nil)
+	}
+	
+	if isNil(got) {
+		assert(t, false, fn, 1)
 	}
 }
 
@@ -90,4 +94,20 @@ func Panic(t *testing.T, err interface{}, fn func()) {
 		equal(t, err, recover(), 3)
 	}()
 	fn()
+}
+
+func isNil(object interface{}) bool {
+	if object == nil {
+		return true
+	}
+
+	// if object type is nil, value will be zero value
+	value := reflect.ValueOf(object)
+	kind := value.Kind()
+	
+	if kind >= reflect.Chan && kind <= reflect.Slice && value.IsNil() {
+		return true
+	}
+
+	return false
 }
