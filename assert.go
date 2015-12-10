@@ -1,12 +1,13 @@
 package assert
+
 // Testing helpers for doozer.
 
 import (
+	"fmt"
 	"github.com/kr/pretty"
 	"reflect"
-	"testing"
 	"runtime"
-	"fmt"
+	"testing"
 )
 
 func assert(t *testing.T, result bool, f func(), cd int) {
@@ -47,6 +48,22 @@ func T(t *testing.T, result bool, args ...interface{}) {
 
 func Tf(t *testing.T, result bool, format string, args ...interface{}) {
 	tt(t, result, 1, fmt.Sprintf(format, args...))
+}
+
+func Nil(t *testing.T, got interface{}, args ...interface{}) {
+	if got == nil {
+		Equal(t, nil, nil, args...)
+	} else {
+		Equal(t, nil, got, args...)
+	}
+}
+
+func NotNil(t *testing.T, got interface{}, args ...interface{}) {
+	if got != nil {
+		NotEqual(t, nil, got, args...)
+	} else {
+		NotEqual(t, nil, nil, args...)
+	}
 }
 
 func Equal(t *testing.T, exp, got interface{}, args ...interface{}) {
